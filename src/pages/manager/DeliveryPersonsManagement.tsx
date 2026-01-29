@@ -6,7 +6,7 @@ import Modal from '../../components/ui/Modal';
 import Badge from '../../components/ui/Badge';
 import { useToast } from '../../components/ui/Toast';
 import api from '../../services/api';
-import { Livreur } from '../../types';
+import type { Livreur } from '../../types';
 
 export default function DeliveryPersonsManagement() {
     const [livreurs, setLivreurs] = useState<Livreur[]>([]);

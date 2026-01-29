@@ -29,7 +29,7 @@ export default function RolesManagement() {
         try {
             setIsLoading(true);
             const data = await api.getRoles();
-            setRoles(data);
+            setRoles(data as Role[]);
         } catch (error) {
             showToast('error', 'Failed to fetch roles');
             console.error(error);

@@ -5,7 +5,7 @@ import { StatusBadge, PriorityBadge } from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import { useToast } from '../../components/ui/Toast';
 import api from '../../services/api';
-import { Colis } from '../../types';
+import type { Colis } from '../../types';
 
 export default function AssignedPackages() {
     const [packages, setPackages] = useState<Colis[]>([]);
@@ -132,8 +132,8 @@ export default function AssignedPackages() {
                             <div className="flex items-start justify-between">
                                 <div className="flex items-start gap-4">
                                     <div className={`w-14 h-14 rounded-xl flex items-center justify-center shrink-0 ${pkg.priority === 'EXPRESS'
-                                            ? 'bg-gradient-to-br from-red-500 to-rose-600 text-white'
-                                            : 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white'
+                                        ? 'bg-gradient-to-br from-red-500 to-rose-600 text-white'
+                                        : 'bg-gradient-to-br from-indigo-500 to-purple-600 text-white'
                                         }`}>
                                         <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -201,8 +201,8 @@ export default function AssignedPackages() {
                                         key={status.value}
                                         onClick={() => setNewStatus(status.value)}
                                         className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${newStatus === status.value
-                                                ? status.color
-                                                : 'border-slate-200 hover:border-slate-300 dark:border-slate-600'
+                                            ? status.color
+                                            : 'border-slate-200 hover:border-slate-300 dark:border-slate-600'
                                             }`}
                                     >
                                         {status.label}

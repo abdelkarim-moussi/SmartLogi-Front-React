@@ -5,7 +5,7 @@ import Table from '../../components/ui/Table';
 import Badge from '../../components/ui/Badge';
 import { useToast } from '../../components/ui/Toast';
 import api from '../../services/api';
-import { Client } from '../../types';
+import type { Client } from '../../types';
 
 export default function ClientsManagement() {
     const [clients, setClients] = useState<Client[]>([]);
