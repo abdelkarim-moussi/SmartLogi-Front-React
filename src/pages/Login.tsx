@@ -14,8 +14,8 @@ export default function Login() {
     setError(null);
 
     try {
-      console.log("🔐 Attempting login with email:", email);
-      console.log("📡 API URL:", `${API_BASE_URL}/auth/login`);
+      console.log("Attempting login with email:", email);
+      console.log("API URL:", `${API_BASE_URL}/auth/login`);
 
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
@@ -26,15 +26,15 @@ export default function Login() {
         body: JSON.stringify({ email, password }),
       });
 
-      console.log("📊 Response status:", response.status, response.statusText);
-      console.log("📋 Response headers:", response.headers);
+      console.log("Response status:", response.status, response.statusText);
+      console.log("Response headers:", response.headers);
 
       let data;
       try {
         data = await response.json();
-        console.log("📦 Response data:", data);
+        console.log("Response data:", data);
       } catch (parseErr) {
-        console.error("❌ Failed to parse JSON response:", parseErr);
+        console.error("Failed to parse JSON response:", parseErr);
         throw new Error(`Invalid response format: ${response.statusText}`);
       }
 
@@ -47,14 +47,14 @@ export default function Login() {
       const token = data.token || data.access_token || data.accessToken;
 
       if (!token) {
-        console.error("⚠️ Response data:", data);
+        console.error("Response data:", data);
         throw new Error(
           "No token received from server. Check server response.",
         );
       }
 
       localStorage.setItem("authToken", token);
-      console.log("✅ Login successful, token stored");
+      console.log("Login successful, token stored");
 
       setTimeout(() => {
         window.location.href = "/dashboard";
@@ -62,7 +62,7 @@ export default function Login() {
     } catch (err) {
       const message = err instanceof Error ? err.message : "An error occurred";
       setError(message);
-      console.error("❌ Login error:", message);
+      console.error("Login error:", message);
       console.error("Full error object:", err);
     } finally {
       setIsLoading(false);
@@ -76,7 +76,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md p-8">
+      <div className="w-full max-w-2xl p-8">
         <div className="mb-8 text-center">
           <h4 className="text-2xl font-bold text-gray-800">Sign in here</h4>
           <p className="text-gray-500 mt-2 text-sm">
@@ -108,7 +108,7 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-1 border border-gray-300 focus:ring-1 focus:ring-[#732C2C] focus:border-transparent outline-none transition-all"
+              className="w-full px-4 py-1 border border-gray-300 focus:ring-1 focus:ring-red-900 focus:border-transparent outline-none transition-all"
             />
           </div>
 
@@ -127,7 +127,7 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-4 py-1 border border-gray-300 focus:ring-1 focus:ring- focus:border-transparent outline-none transition-all"
+              className="w-full px-4 py-1 border border-gray-300 focus:ring-1 focus:ring-red-900 focus:border-transparent outline-none transition-all"
             />
           </div>
 
@@ -163,7 +163,7 @@ export default function Login() {
           Don't have an account?{" "}
           <a
             href="#signup"
-            className="text-[#732c2c] font-semibold hover:underline"
+            className="text-red-900 font-semibold hover:underline"
           >
             Create one here
           </a>
