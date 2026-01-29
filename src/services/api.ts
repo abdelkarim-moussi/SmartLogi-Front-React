@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = '/api';
 
 interface RequestOptions extends RequestInit {
     skipAuth?: boolean;
@@ -63,7 +63,7 @@ class ApiService {
     }
 
     async register(data: { email: string; password: string; role?: string }) {
-        return this.request<{ token: string; user?: unknown }>('/v1/auth/login', {
+        return this.request<{ token: string; user?: unknown }>('/auth/login', {
             method: 'POST',
             body: JSON.stringify(data),
             skipAuth: true,
