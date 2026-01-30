@@ -1,15 +1,55 @@
+import { useState, useEffect } from 'react';
 import { StatsCard } from '../../components/ui/Card';
 import { StatusBadge } from '../../components/ui/Badge';
-
-// Mock data for recent packages
-const recentPackages = [
-    { id: '1', description: 'Electronics Package', destination: 'Casablanca', status: 'EN_COURS', client: 'John Doe' },
-    { id: '2', description: 'Fashion Items', destination: 'Rabat', status: 'PREPARATION', client: 'Jane Smith' },
-    { id: '3', description: 'Food Delivery', destination: 'Marrakech', status: 'CREE', client: 'Ahmed K.' },
-    { id: '4', description: 'Documents', destination: 'Fes', status: 'LIVRE', client: 'Maria L.' },
-];
+import api from '../../services/api';
+import type { Colis, Livreur, Client } from '../../types';
 
 export default function ManagerDashboard() {
+    const [packages, setPackages] = useState<Colis[]>([]);
+    const [livreurs, setLivreurs] = useState<Livreur[]>([]);
+    const [clients, setClients] = useState<Client[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        fetchDashboardData();
+    }, []);
+
+    const fetchDashboardData = async () => {
+        try {
+            setIsLoading(true);
+            const [packagesData, livreursData, clientsData] = await Promise.all([
+                api.getAllColis(),
+                api.getAllLivreurs(),
+                api.getAllClients(),
+            ]);
+            setPackages(Array.isArray(packagesData) ? packagesData as Colis[] : []);
+            setLivreurs(Array.isArray(livreursData) ? livreursData as Livreur[] : []);
+            setClients(Array.isArray(clientsData) ? clientsData as Client[] : []);
+        } catch (error) {
+            console.error('Failed to fetch dashboard data:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Calculate stats from real data
+    const totalPackages = packages.length;
+    const inTransitCount = packages.filter(p => p.status === 'EN_COURS' || p.status === 'IN_TRANSIT').length;
+    const deliveredCount = packages.filter(p => p.status === 'LIVRE' || p.status === 'DELIVERED').length;
+    const deliveryPersonsCount = livreurs.length;
+
+    // Get recent packages (last 5)
+    const recentPackages = packages.slice(0, 5);
+
+    // Calculate status distribution
+    const statusCounts = {
+        created: packages.filter(p => p.status === 'CREE' || p.status === 'IN_STOCK').length,
+        preparation: packages.filter(p => p.status === 'PREPARATION').length,
+        inTransit: packages.filter(p => p.status === 'EN_COURS' || p.status === 'IN_TRANSIT').length,
+        delivered: packages.filter(p => p.status === 'LIVRE' || p.status === 'DELIVERED').length,
+    };
+    const totalForPercentage = totalPackages || 1;
+
     return (
         <div className="space-y-6">
             {/* Page Header */}
@@ -22,9 +62,8 @@ export default function ManagerDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatsCard
                     title="Total Packages"
-                    value="1,847"
+                    value={isLoading ? '...' : totalPackages.toString()}
                     color="indigo"
-                    trend={{ value: 8, isPositive: true }}
                     icon={
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -33,7 +72,7 @@ export default function ManagerDashboard() {
                 />
                 <StatsCard
                     title="In Transit"
-                    value="234"
+                    value={isLoading ? '...' : inTransitCount.toString()}
                     color="orange"
                     icon={
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,10 +81,9 @@ export default function ManagerDashboard() {
                     }
                 />
                 <StatsCard
-                    title="Delivered Today"
-                    value="89"
+                    title="Delivered"
+                    value={isLoading ? '...' : deliveredCount.toString()}
                     color="green"
-                    trend={{ value: 12, isPositive: true }}
                     icon={
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -54,7 +92,7 @@ export default function ManagerDashboard() {
                 />
                 <StatsCard
                     title="Delivery Persons"
-                    value="45"
+                    value={isLoading ? '...' : deliveryPersonsCount.toString()}
                     color="purple"
                     icon={
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -75,31 +113,41 @@ export default function ManagerDashboard() {
                         </a>
                     </div>
                     <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                    <th className="pb-3">Package</th>
-                                    <th className="pb-3">Destination</th>
-                                    <th className="pb-3">Client</th>
-                                    <th className="pb-3">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                                {recentPackages.map((pkg) => (
-                                    <tr key={pkg.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50">
-                                        <td className="py-3">
-                                            <p className="font-medium text-slate-900 dark:text-white">{pkg.description}</p>
-                                            <p className="text-xs text-slate-500">#{pkg.id}</p>
-                                        </td>
-                                        <td className="py-3 text-slate-600 dark:text-slate-300">{pkg.destination}</td>
-                                        <td className="py-3 text-slate-600 dark:text-slate-300">{pkg.client}</td>
-                                        <td className="py-3">
-                                            <StatusBadge status={pkg.status} />
-                                        </td>
+                        {isLoading ? (
+                            <div className="flex items-center justify-center py-8">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                            </div>
+                        ) : recentPackages.length === 0 ? (
+                            <p className="text-center py-8 text-slate-500">No packages found</p>
+                        ) : (
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                        <th className="pb-3">Package</th>
+                                        <th className="pb-3">Destination</th>
+                                        <th className="pb-3">Recipient</th>
+                                        <th className="pb-3">Status</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                                    {recentPackages.map((pkg) => (
+                                        <tr key={pkg.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                                            <td className="py-3">
+                                                <p className="font-medium text-slate-900 dark:text-white">{pkg.description || 'Package'}</p>
+                                                <p className="text-xs text-slate-500">#{pkg.id.slice(0, 8)}</p>
+                                            </td>
+                                            <td className="py-3 text-slate-600 dark:text-slate-300">{pkg.destination}</td>
+                                            <td className="py-3 text-slate-600 dark:text-slate-300">
+                                                {pkg.destinataire ? `${pkg.destinataire.prenom} ${pkg.destinataire.nom}` : 'N/A'}
+                                            </td>
+                                            <td className="py-3">
+                                                <StatusBadge status={pkg.status} />
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
                     </div>
                 </div>
 
@@ -108,10 +156,10 @@ export default function ManagerDashboard() {
                     <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Status Distribution</h2>
                     <div className="space-y-4">
                         {[
-                            { status: 'Created', count: 45, color: 'bg-slate-400', percentage: 15 },
-                            { status: 'In Preparation', count: 89, color: 'bg-blue-500', percentage: 30 },
-                            { status: 'In Transit', count: 124, color: 'bg-amber-500', percentage: 42 },
-                            { status: 'Delivered', count: 38, color: 'bg-emerald-500', percentage: 13 },
+                            { status: 'In Stock/Created', count: statusCounts.created, color: 'bg-slate-400', percentage: Math.round((statusCounts.created / totalForPercentage) * 100) },
+                            { status: 'In Preparation', count: statusCounts.preparation, color: 'bg-blue-500', percentage: Math.round((statusCounts.preparation / totalForPercentage) * 100) },
+                            { status: 'In Transit', count: statusCounts.inTransit, color: 'bg-amber-500', percentage: Math.round((statusCounts.inTransit / totalForPercentage) * 100) },
+                            { status: 'Delivered', count: statusCounts.delivered, color: 'bg-emerald-500', percentage: Math.round((statusCounts.delivered / totalForPercentage) * 100) },
                         ].map((item) => (
                             <div key={item.status}>
                                 <div className="flex items-center justify-between text-sm mb-1">
@@ -123,6 +171,14 @@ export default function ManagerDashboard() {
                                 </div>
                             </div>
                         ))}
+                    </div>
+
+                    {/* Additional Stats */}
+                    <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+                        <div className="flex items-center justify-between text-sm">
+                            <span className="text-slate-500">Total Clients</span>
+                            <span className="font-semibold text-slate-900 dark:text-white">{clients.length}</span>
+                        </div>
                     </div>
                 </div>
             </div>
