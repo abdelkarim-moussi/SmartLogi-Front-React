@@ -1,4 +1,4 @@
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'http://localhost:8080/api';
 
 interface RequestOptions extends RequestInit {
     skipAuth?: boolean;
@@ -25,6 +25,7 @@ class ApiService {
 
         if (!skipAuth) {
             const token = this.getToken();
+
             if (token) {
                 (requestHeaders as Record<string, string>)['Authorization'] = `Bearer ${token}`;
             }
@@ -34,6 +35,7 @@ class ApiService {
             ...restOptions,
             headers: requestHeaders,
         });
+
 
         if (response.status === 401) {
             localStorage.removeItem('authToken');
@@ -48,9 +50,12 @@ class ApiService {
 
         // Handle empty responses
         const text = await response.text();
+        console.log('API Raw Response:', endpoint, response.text);
         if (!text) return {} as T;
 
-        return JSON.parse(text) as T;
+        const parsed = JSON.parse(text);
+        console.log('API Parsed Response:', endpoint, parsed);
+        return parsed as T;
     }
 
     // Auth endpoints
@@ -104,7 +109,12 @@ class ApiService {
 
     // Colis endpoints
     async getAllColis() {
-        return this.request<unknown[]>('/colis');
+        const response = await this.request<{ content: unknown[] } | unknown[]>('/colis');
+        // Handle Spring Boot paginated response
+        if (response && typeof response === 'object' && 'content' in response) {
+            return response.content;
+        }
+        return Array.isArray(response) ? response : [];
     }
 
     async getColisById(id: string) {
@@ -112,7 +122,7 @@ class ApiService {
     }
 
     async getMyColis() {
-        return this.request<unknown[]>('/colis/my');
+        return this.request<unknown[]>('/colis/myColis');
     }
 
     async getColisByUser(userId: string) {
@@ -145,7 +155,12 @@ class ApiService {
 
     // Livreur endpoints
     async getAllLivreurs() {
-        return this.request<unknown[]>('/livreurs');
+        const response = await this.request<{ content: unknown[] } | unknown[]>('/livreurs');
+        // Handle Spring Boot paginated response
+        if (response && typeof response === 'object' && 'content' in response) {
+            return response.content;
+        }
+        return Array.isArray(response) ? response : [];
     }
 
     async getLivreurById(id: string) {

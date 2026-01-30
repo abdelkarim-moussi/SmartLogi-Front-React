@@ -29,12 +29,12 @@ export interface Permission {
 }
 
 // Package (Colis) types
-export type ColisStatus = 
-  | 'CREE' 
-  | 'PREPARATION' 
-  | 'EN_COURS' 
-  | 'LIVRE' 
-  | 'RETOURNE' 
+export type ColisStatus =
+  | 'CREE'
+  | 'PREPARATION'
+  | 'EN_COURS'
+  | 'LIVRE'
+  | 'RETOURNE'
   | 'ANNULE';
 
 export type ColisPriority = 'EXPRESS' | 'NORMAL';
@@ -53,22 +53,33 @@ export interface HistoriqueLivraison {
   commentaire?: string;
 }
 
+export interface Destinataire {
+  id: string;
+  nom: string;
+  prenom: string;
+  telephone: string;
+  email?: string | null;
+  adresse: string;
+}
+
+export interface Zone {
+  id: string;
+  codePostal: string;
+}
+
 export interface Colis {
   id: string;
   poids: number;
   description: string;
-  adresse: string;
-  villeDestination: string;
+  destination: string;
   priority: ColisPriority;
-  status: ColisStatus;
-  produits: Produit[];
-  livreurId?: string;
-  livreur?: Livreur;
-  clientExpediteurId: string;
+  status: string; // Backend uses different status values like 'IN_STOCK'
+  produits: Produit[] | null;
+  livreur?: Livreur | null;
   clientExpediteur?: Client;
-  destinataire: string;
+  destinataire: Destinataire;
   historiqueLivraison: HistoriqueLivraison[];
-  zoneId?: string;
+  zone?: Zone;
   createdAt?: string;
   updatedAt?: string;
 }

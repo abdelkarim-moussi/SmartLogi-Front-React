@@ -48,38 +48,44 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const token = response.token;
     if (!token) {
-      throw new Error('No token received from server');
+      throw new Error("No token received from server");
     }
 
-    localStorage.setItem('authToken', token);
+    localStorage.setItem("authToken", token);
 
     // Decode JWT to get user info (basic decoding)
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    console.log('JWT Payload:', payload); // Debug: see what's in the token
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    console.log("JWT Payload:", payload); // Debug: see what's in the token
 
     // Extract role from various possible JWT structures
-    let userRole: UserRole = 'CLIENT';
+    let userRole: UserRole = "CLIENT";
     if (payload.role) {
       // Single role field (string)
-      userRole = typeof payload.role === 'string' ? payload.role : payload.role.name;
+      userRole =
+        typeof payload.role === "string" ? payload.role : payload.role.name;
     } else if (payload.roles && payload.roles.length > 0) {
       // Handle roles array/set - could be strings or objects
       const firstRole = payload.roles[0];
-      if (typeof firstRole === 'string') {
+      if (typeof firstRole === "string") {
         // Strip ROLE_ prefix if present (e.g., 'ROLE_ADMIN' -> 'ADMIN')
-        userRole = firstRole.replace('ROLE_', '') as UserRole;
+        userRole = firstRole.replace("ROLE_", "") as UserRole;
       } else if (firstRole.name) {
-        userRole = firstRole.name.replace('ROLE_', '') as UserRole;
+        userRole = firstRole.name.replace("ROLE_", "") as UserRole;
       } else if (firstRole.authority) {
-        userRole = firstRole.authority.replace('ROLE_', '') as UserRole;
+        userRole = firstRole.authority.replace("ROLE_", "") as UserRole;
       }
     } else if (payload.authorities && payload.authorities.length > 0) {
       // Handle Spring Security authorities format
-      const authority = payload.authorities.find((a: string | { authority: string }) =>
-        typeof a === 'string' ? a.startsWith('ROLE_') : a.authority?.startsWith('ROLE_')
+      const authority = payload.authorities.find(
+        (a: string | { authority: string }) =>
+          typeof a === "string"
+            ? a.startsWith("ROLE_")
+            : a.authority?.startsWith("ROLE_"),
       );
       if (authority) {
-        userRole = (typeof authority === 'string' ? authority : authority.authority).replace('ROLE_', '') as UserRole;
+        userRole = (
+          typeof authority === "string" ? authority : authority.authority
+        ).replace("ROLE_", "") as UserRole;
       }
     }
 
@@ -91,8 +97,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       prenom: payload.prenom || payload.firstName,
     };
 
-    console.log('User Data:', userData); // Debug: see extracted user data
-    localStorage.setItem('user', JSON.stringify(userData));
+    console.log("User Data:", userData); // Debug: see extracted user data
+    localStorage.setItem("user", JSON.stringify(userData));
     setUser(userData);
   };
 

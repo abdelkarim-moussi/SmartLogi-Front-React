@@ -17,7 +17,7 @@ export default function Login() {
     e.preventDefault();
 
     if (!email || !password) {
-      showToast('error', 'Please fill in all fields');
+      showToast("error", "Please fill in all fields");
       return;
     }
 
@@ -25,32 +25,33 @@ export default function Login() {
 
     try {
       await login(email, password);
-      showToast('success', 'Login successful!');
+
+      showToast("success", "Login successful!");
 
       // Get user role from localStorage and redirect
-      const userStr = localStorage.getItem('user');
+      const userStr = localStorage.getItem("user");
       if (userStr) {
         const user = JSON.parse(userStr);
         switch (user.role) {
-          case 'ADMIN':
-            navigate('/admin');
+          case "ADMIN":
+            navigate("/admin");
             break;
-          case 'MANAGER':
-            navigate('/manager');
+          case "MANAGER":
+            navigate("/manager");
             break;
-          case 'CLIENT':
-            navigate('/client');
+          case "CLIENT":
+            navigate("/client");
             break;
-          case 'LIVREUR':
-            navigate('/delivery');
+          case "LIVREUR":
+            navigate("/delivery");
             break;
           default:
-            navigate('/');
+            navigate("/");
         }
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Login failed";
-      showToast('error', message);
+      showToast("error", message);
     } finally {
       setIsLoading(false);
     }
@@ -69,8 +70,18 @@ export default function Login() {
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 mb-4">
             <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/25">
-              <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 17h8M8 17a2 2 0 11-4 0 2 2 0 014 0zm8 0a2 2 0 102 0h-2zm-8 0h2m6 0h2M3 13V5a2 2 0 012-2h6l4 4h4a2 2 0 012 2v4" />
+              <svg
+                className="w-7 h-7 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 17h8M8 17a2 2 0 11-4 0 2 2 0 014 0zm8 0a2 2 0 102 0h-2zm-8 0h2m6 0h2M3 13V5a2 2 0 012-2h6l4 4h4a2 2 0 012 2v4"
+                />
               </svg>
             </div>
             <span className="text-2xl font-bold text-white">SmartLogi</span>
@@ -90,8 +101,18 @@ export default function Login() {
               onChange={(e) => setEmail(e.target.value)}
               className="bg-white/5 border-white/10 text-white placeholder:text-slate-500"
               leftIcon={
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
+                  />
                 </svg>
               }
             />
@@ -104,8 +125,18 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
               className="bg-white/5 border-white/10 text-white placeholder:text-slate-500"
               leftIcon={
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                  />
                 </svg>
               }
             />
@@ -118,12 +149,20 @@ export default function Login() {
                 />
                 <span className="text-sm text-slate-300">Remember me</span>
               </label>
-              <a href="#forgot" className="text-sm text-indigo-400 hover:text-indigo-300">
+              <a
+                href="#forgot"
+                className="text-sm text-indigo-400 hover:text-indigo-300"
+              >
                 Forgot password?
               </a>
             </div>
 
-            <Button type="submit" className="w-full" size="lg" isLoading={isLoading}>
+            <Button
+              type="submit"
+              className="w-full"
+              size="lg"
+              isLoading={isLoading}
+            >
               Sign In
             </Button>
           </form>
@@ -134,7 +173,9 @@ export default function Login() {
               <div className="w-full border-t border-white/10" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-transparent text-slate-400">or continue with</span>
+              <span className="px-4 bg-transparent text-slate-400">
+                or continue with
+              </span>
             </div>
           </div>
 
@@ -167,7 +208,10 @@ export default function Login() {
           {/* Sign Up Link */}
           <p className="mt-6 text-center text-slate-400 text-sm">
             Don't have an account?{" "}
-            <a href="/register" className="text-indigo-400 font-semibold hover:text-indigo-300">
+            <a
+              href="/register"
+              className="text-indigo-400 font-semibold hover:text-indigo-300"
+            >
               Create one here
             </a>
           </p>
@@ -176,7 +220,8 @@ export default function Login() {
         {/* Demo credentials hint */}
         <div className="mt-6 p-4 bg-white/5 backdrop-blur rounded-xl border border-white/10">
           <p className="text-xs text-slate-400 text-center">
-            <strong className="text-slate-300">Demo:</strong> Use your backend credentials to login
+            <strong className="text-slate-300">Demo:</strong> Use your backend
+            credentials to login
           </p>
         </div>
       </div>
