@@ -21,7 +21,7 @@ export default function ClientsManagement() {
         try {
             setIsLoading(true);
             const data = await api.getAllClients();
-            setClients(data as Client[]);
+            setClients(Array.isArray(data) ? data as Client[] : []);
         } catch (error) {
             showToast('error', 'Failed to fetch clients');
             console.error(error);

@@ -187,7 +187,12 @@ class ApiService {
 
     // Client endpoints
     async getAllClients() {
-        return this.request<unknown[]>('/clients');
+        const response = await this.request<{ content: unknown[] } | unknown[]>('/clients');
+        // Handle Spring Boot paginated response
+        if (response && typeof response === 'object' && 'content' in response) {
+            return response.content;
+        }
+        return Array.isArray(response) ? response : [];
     }
 
     async getClientById(id: string) {
