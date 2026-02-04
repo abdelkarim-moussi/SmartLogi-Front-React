@@ -50,11 +50,9 @@ class ApiService {
 
         // Handle empty responses
         const text = await response.text();
-        console.log('API Raw Response:', endpoint, response.text);
         if (!text) return {} as T;
 
         const parsed = JSON.parse(text);
-        console.log('API Parsed Response:', endpoint, parsed);
         return parsed as T;
     }
 
@@ -122,11 +120,21 @@ class ApiService {
     }
 
     async getMyColis() {
-        return this.request<unknown[]>('/colis/myColis');
+        const response = await this.request<{ content: unknown[] } | unknown[]>('/colis/myColis');
+        // Handle Spring Boot paginated response
+        if (response && typeof response === 'object' && 'content' in response) {
+            return response.content;
+        }
+        return Array.isArray(response) ? response : [];
     }
 
     async getColisByUser(userId: string) {
-        return this.request<unknown[]>(`/colis/user/${userId}`);
+        const response = await this.request<{ content: unknown[] } | unknown[]>(`/colis/user/${userId}`);
+        // Handle Spring Boot paginated response
+        if (response && typeof response === 'object' && 'content' in response) {
+            return response.content;
+        }
+        return Array.isArray(response) ? response : [];
     }
 
     async createColis(data: unknown) {
@@ -212,10 +220,10 @@ class ApiService {
 
     // Livraison (assignment) endpoints
     async assignLivreurToColis(colisId: string, livreurId: string) {
-        return this.request('/livraison', {
+        return this.request(`/livraison/${colisId}/livreur/${livreurId}`, {
             method: 'POST',
-            body: JSON.stringify({ colisId, livreurId }),
         });
+
     }
 }
 

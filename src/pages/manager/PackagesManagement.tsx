@@ -38,8 +38,6 @@ export default function PackagesManagement() {
       setLivreurs(
         Array.isArray(livreursData) ? (livreursData as Livreur[]) : [],
       );
-
-      console.log(packages);
     } catch (error) {
       showToast("error", "Failed to fetch data");
       console.error(error);
@@ -56,6 +54,7 @@ export default function PackagesManagement() {
 
     try {
       setIsAssigning(true);
+      console.log(selectedLivreur);
       await api.assignLivreurToColis(selectedPackage.id, selectedLivreur);
       showToast("success", "Delivery person assigned successfully");
       setIsAssignModalOpen(false);
@@ -92,7 +91,8 @@ export default function PackagesManagement() {
   };
 
   const filteredPackages = packages.filter((pkg) => {
-    const destinataireFullName = `${pkg.destinataire?.prenom || ''} ${pkg.destinataire?.nom || ''}`.toLowerCase();
+    const destinataireFullName =
+      `${pkg.destinataire?.prenom || ""} ${pkg.destinataire?.nom || ""}`.toLowerCase();
     const matchesSearch =
       pkg.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       destinataireFullName.includes(searchQuery.toLowerCase()) ||
@@ -257,10 +257,11 @@ export default function PackagesManagement() {
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${statusFilter === status
-                ? "bg-indigo-600 text-white"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300"
-                }`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                statusFilter === status
+                  ? "bg-indigo-600 text-white"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300"
+              }`}
             >
               {status === "all" ? "All" : status.replace("_", " ")}
             </button>

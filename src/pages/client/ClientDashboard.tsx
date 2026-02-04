@@ -1,14 +1,46 @@
+import { useState, useEffect } from 'react';
 import { StatsCard } from '../../components/ui/Card';
 import { StatusBadge } from '../../components/ui/Badge';
-
-// Mock data
-const myPackages = [
-    { id: '1', description: 'Electronics', destination: 'Casablanca', status: 'EN_COURS', date: '2024-01-15' },
-    { id: '2', description: 'Documents', destination: 'Rabat', status: 'LIVRE', date: '2024-01-10' },
-    { id: '3', description: 'Clothing', destination: 'Marrakech', status: 'PREPARATION', date: '2024-01-18' },
-];
+import api from '../../services/api';
+import type { Colis } from '../../types';
 
 export default function ClientDashboard() {
+    const [packages, setPackages] = useState<Colis[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        fetchMyPackages();
+    }, []);
+
+    const fetchMyPackages = async () => {
+        try {
+            setIsLoading(true);
+            const data = await api.getMyColis();
+            setPackages(Array.isArray(data) ? data as Colis[] : []);
+        } catch (error) {
+            console.error('Failed to fetch packages:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Calculate stats from real data
+    const totalPackages = packages.length;
+    const inTransitCount = packages.filter(p => p.status === 'EN_COURS' || p.status === 'IN_TRANSIT').length;
+    const deliveredCount = packages.filter(p => p.status === 'LIVRE' || p.status === 'DELIVERED').length;
+    const pendingCount = packages.filter(p => p.status === 'CREE' || p.status === 'PREPARATION' || p.status === 'IN_STOCK').length;
+
+    // Get recent packages (last 5)
+    const recentPackages = packages.slice(0, 5);
+
+    // Calculate status distribution
+    const statusCounts = {
+        created: packages.filter(p => p.status === 'CREE' || p.status === 'IN_STOCK').length,
+        preparation: packages.filter(p => p.status === 'PREPARATION').length,
+        inTransit: packages.filter(p => p.status === 'EN_COURS' || p.status === 'IN_TRANSIT').length,
+        delivered: packages.filter(p => p.status === 'LIVRE' || p.status === 'DELIVERED').length,
+    };
+
     return (
         <div className="space-y-6">
             {/* Page Header */}
@@ -21,7 +53,7 @@ export default function ClientDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatsCard
                     title="Total Packages"
-                    value="24"
+                    value={isLoading ? '...' : totalPackages.toString()}
                     color="indigo"
                     icon={
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -31,7 +63,7 @@ export default function ClientDashboard() {
                 />
                 <StatsCard
                     title="In Transit"
-                    value="3"
+                    value={isLoading ? '...' : inTransitCount.toString()}
                     color="orange"
                     icon={
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,7 +73,7 @@ export default function ClientDashboard() {
                 />
                 <StatsCard
                     title="Delivered"
-                    value="18"
+                    value={isLoading ? '...' : deliveredCount.toString()}
                     color="green"
                     icon={
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,7 +83,7 @@ export default function ClientDashboard() {
                 />
                 <StatsCard
                     title="Pending"
-                    value="3"
+                    value={isLoading ? '...' : pendingCount.toString()}
                     color="purple"
                     icon={
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,28 +120,38 @@ export default function ClientDashboard() {
                     </a>
                 </div>
                 <div className="space-y-4">
-                    {myPackages.map((pkg) => (
-                        <div
-                            key={pkg.id}
-                            className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                        >
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center">
-                                    <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p className="font-medium text-slate-900 dark:text-white">{pkg.description}</p>
-                                    <p className="text-sm text-slate-500">To: {pkg.destination}</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <span className="text-sm text-slate-500">{pkg.date}</span>
-                                <StatusBadge status={pkg.status} />
-                            </div>
+                    {isLoading ? (
+                        <div className="flex items-center justify-center py-8">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
                         </div>
-                    ))}
+                    ) : recentPackages.length === 0 ? (
+                        <p className="text-center py-8 text-slate-500">No packages found. Create your first package!</p>
+                    ) : (
+                        recentPackages.map((pkg) => (
+                            <div
+                                key={pkg.id}
+                                className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-700/50 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center">
+                                        <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p className="font-medium text-slate-900 dark:text-white">{pkg.description || 'Package'}</p>
+                                        <p className="text-sm text-slate-500">To: {pkg.destination}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <span className="text-sm text-slate-500">
+                                        {pkg.destinataire ? `${pkg.destinataire.prenom} ${pkg.destinataire.nom}` : ''}
+                                    </span>
+                                    <StatusBadge status={pkg.status} />
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
 
@@ -119,10 +161,10 @@ export default function ClientDashboard() {
                     <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Package Status Overview</h2>
                     <div className="space-y-3">
                         {[
-                            { label: 'Created', count: 3, color: 'bg-slate-400' },
-                            { label: 'In Preparation', count: 2, color: 'bg-blue-500' },
-                            { label: 'In Transit', count: 3, color: 'bg-amber-500' },
-                            { label: 'Delivered', count: 18, color: 'bg-emerald-500' },
+                            { label: 'Created/In Stock', count: statusCounts.created, color: 'bg-slate-400' },
+                            { label: 'In Preparation', count: statusCounts.preparation, color: 'bg-blue-500' },
+                            { label: 'In Transit', count: statusCounts.inTransit, color: 'bg-amber-500' },
+                            { label: 'Delivered', count: statusCounts.delivered, color: 'bg-emerald-500' },
                         ].map((item) => (
                             <div key={item.label} className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
