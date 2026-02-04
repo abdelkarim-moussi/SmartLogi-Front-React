@@ -183,6 +183,7 @@ class ApiService {
     }
 
     async updateLivreur(id: string, data: unknown) {
+        console.log(data)
         return this.request(`/livreurs/${id}/update`, {
             method: 'PUT',
             body: JSON.stringify(data),
