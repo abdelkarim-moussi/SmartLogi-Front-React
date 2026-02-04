@@ -7,6 +7,7 @@ import Badge from "../../components/ui/Badge";
 import { useToast } from "../../components/ui/Toast";
 import api from "../../services/api";
 import type { Livreur } from "../../types";
+import { validateEmail, validatePhone } from "../../utils/validation";
 
 export default function DeliveryPersonsManagement() {
   const [livreurs, setLivreurs] = useState<Livreur[]>([]);
@@ -73,6 +74,16 @@ export default function DeliveryPersonsManagement() {
       !formData.vehicule
     ) {
       showToast("error", "Please fill in all required fields");
+      return;
+    }
+
+    if (!validateEmail(formData.email)) {
+      showToast("error", "Invalid Email Format");
+      return;
+    }
+
+    if (!validatePhone(formData.telephone)) {
+      showToast("error", "Invalid Phone Format");
       return;
     }
 
@@ -293,7 +304,7 @@ export default function DeliveryPersonsManagement() {
       >
         <div className="grid grid-cols-2 gap-4">
           <Input
-            label="First Name"
+            label="First Name *"
             placeholder="John"
             value={formData.prenom}
             onChange={(e) =>
@@ -301,13 +312,13 @@ export default function DeliveryPersonsManagement() {
             }
           />
           <Input
-            label="Last Name"
+            label="Last Name *"
             placeholder="Doe"
             value={formData.nom}
             onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
           />
           <Input
-            label="Email"
+            label="Email *"
             type="email"
             placeholder="john@example.com"
             value={formData.email}
@@ -316,7 +327,7 @@ export default function DeliveryPersonsManagement() {
             }
           />
           <Input
-            label="Phone"
+            label="Phone *"
             placeholder="+212 600 000 000"
             value={formData.telephone}
             onChange={(e) =>
@@ -325,7 +336,7 @@ export default function DeliveryPersonsManagement() {
           />
           <div className="col-span-2">
             <Input
-              label="Vehicle Type"
+              label="Vehicle Type *"
               placeholder="e.g., Motorcycle, Van, Truck"
               value={formData.vehicule}
               onChange={(e) =>
