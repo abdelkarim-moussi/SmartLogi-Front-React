@@ -33,12 +33,15 @@ export default function UsersManagement() {
     }
   };
 
-    const filteredUsers = users.filter((user) => {
-      const matchesSearch =
-        user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      const matchesRole = roleFilter === "all" || user.roles === roleFilter;
-      return matchesSearch && matchesRole;
-    });
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch = user.email
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchesRole =
+      roleFilter === "all" ||
+      user.roles.some((role) => role.name === roleFilter);
+    return matchesSearch && matchesRole;
+  });
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
@@ -76,11 +79,14 @@ export default function UsersManagement() {
     {
       key: "role" as keyof User,
       header: "Role",
-      render: (user: User) => (
-        <Badge variant={getRoleBadgeVariant(user.roles[0].name)}>
-          {user.roles[0].name}
-        </Badge>
-      ),
+      render: (user: User) =>
+        user.roles.map((role) => {
+          return (
+            <Badge key={role.id} variant={getRoleBadgeVariant(role.name)}>
+              {role.name}
+            </Badge>
+          );
+        }),
     },
     {
       key: "status" as keyof User,
@@ -105,21 +111,6 @@ export default function UsersManagement() {
       header: "Actions",
       render: () => (
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-              />
-            </svg>
-          </Button>
           <Button variant="ghost" size="sm">
             <svg
               className="w-4 h-4 text-red-500"
@@ -199,11 +190,10 @@ export default function UsersManagement() {
             <button
               key={role}
               onClick={() => setRoleFilter(role)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                roleFilter === role
-                  ? "bg-indigo-600 text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
-              }`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${roleFilter === role
+                ? "bg-indigo-600 text-white"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
+                }`}
             >
               {role === "all" ? "All" : role}
             </button>

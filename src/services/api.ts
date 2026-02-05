@@ -228,10 +228,10 @@ class ApiService {
 
     }
 
-    async getUsers(){
-        return this.request<{ id: string; email: string; roles: unknown[], status: string, createdAt: string }[]>("/users"),{
-            method : 'GET'
-        }
+    async getUsers() {
+        return this.request<{ id: string; email: string; roles: unknown[], createdAt: string, updatedAt: string }[]>("/users", {
+            method: 'GET'
+        });
     }
 }
 
