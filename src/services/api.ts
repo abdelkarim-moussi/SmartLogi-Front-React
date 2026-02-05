@@ -53,6 +53,7 @@ class ApiService {
         if (!text) return {} as T;
 
         const parsed = JSON.parse(text);
+        console.log(parsed)
         return parsed as T;
     }
 
@@ -225,6 +226,12 @@ class ApiService {
             method: 'POST',
         });
 
+    }
+
+    async getUsers(){
+        return this.request<{ id: string; email: string; roles: unknown[], status: string, createdAt: string }[]>("/users"),{
+            method : 'GET'
+        }
     }
 }
 
