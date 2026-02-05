@@ -5,6 +5,7 @@ import Table from "../../components/ui/Table";
 import Badge from "../../components/ui/Badge";
 import api from "../../services/api";
 import type { Permission, Role } from "../../types";
+import Modal from "../../components/ui/Modal";
 
 interface User {
   id: string;
@@ -21,7 +22,8 @@ export default function UsersManagement() {
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({});
+  const [editingUser, setEditingUser] = useState<User>();
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
 
   useEffect(() => {
@@ -37,7 +39,12 @@ export default function UsersManagement() {
     }
   };
 
-  const handleOpenModal = (user: User) => {};
+  const handleOpenModal = async (user: User) => {
+    setEditingUser(user);
+    setSelectedRoles(user.roles.map((role) => role.name));
+    await fetchRoles();
+    setIsModalOpen(true);
+  };
 
   const fetchUsers = async () => {
     try {
@@ -73,7 +80,30 @@ export default function UsersManagement() {
     }
   };
 
-  const handleAssignRoles = (userId: string, assignedRoles: []) => {};
+  const handleAssignRoles = async () => {
+    if (!editingUser) return;
+
+    setIsSubmitting(true);
+    try {
+      await api.assignRolesToUser(editingUser.id, selectedRoles);
+      await fetchUsers();
+      setIsModalOpen(false);
+      setEditingUser(undefined);
+      setSelectedRoles([]);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const toggleRole = (roleName: string) => {
+    setSelectedRoles((prev) =>
+      prev.includes(roleName)
+        ? prev.filter((r) => r !== roleName)
+        : [...prev, roleName]
+    );
+  };
 
   const columns = [
     {
@@ -226,11 +256,10 @@ export default function UsersManagement() {
             <button
               key={role}
               onClick={() => setRoleFilter(role)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                roleFilter === role
-                  ? "bg-indigo-600 text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
-              }`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${roleFilter === role
+                ? "bg-indigo-600 text-white"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
+                }`}
             >
               {role === "all" ? "All" : role}
             </button>
@@ -256,18 +285,41 @@ export default function UsersManagement() {
               Cancel
             </Button>
             <Button onClick={handleAssignRoles} isLoading={isSubmitting}>
-              Create Role
+              Save Roles
             </Button>
           </>
         }
       >
-        <Input
-          label="Role Name"
-          placeholder="e.g., SUPERVISOR"
-          value={newRoleName}
-          onChange={(e) => setNewRoleName(e.target.value)}
-          helperText="Role names should be uppercase (e.g., ADMIN, MANAGER)"
-        />
+        {editingUser && (
+          <div className="space-y-4">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Assigning roles to: <strong>{editingUser.email}</strong>
+            </p>
+            <div className="space-y-2">
+              {roles.map((role) => (
+                <label
+                  key={role.id}
+                  className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedRoles.includes(role.name)}
+                    onChange={() => toggleRole(role.name)}
+                    className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+                  />
+                  <Badge variant={getRoleBadgeVariant(role.name)}>
+                    {role.name}
+                  </Badge>
+                </label>
+              ))}
+            </div>
+            {selectedRoles.length === 0 && (
+              <p className="text-sm text-amber-600 dark:text-amber-400">
+                Please select at least one role.
+              </p>
+            )}
+          </div>
+        )}
       </Modal>
     </div>
   );
