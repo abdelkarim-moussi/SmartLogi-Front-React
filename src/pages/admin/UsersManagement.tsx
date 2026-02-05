@@ -4,7 +4,7 @@ import Input from "../../components/ui/Input";
 import Table from "../../components/ui/Table";
 import Badge from "../../components/ui/Badge";
 import api from "../../services/api";
-import type { Permission } from "../../types";
+import type { Permission, Role } from "../../types";
 
 interface User {
   id: string;
@@ -19,10 +19,25 @@ export default function UsersManagement() {
   const [users, setUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({});
+  const [roles, setRoles] = useState<Role[]>([]);
 
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  const fetchRoles = async () => {
+    try {
+      const data = await api.getRoles();
+      setRoles(data as Role[]);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleOpenModal = (user: User) => {};
 
   const fetchUsers = async () => {
     try {
@@ -57,6 +72,8 @@ export default function UsersManagement() {
         return "default";
     }
   };
+
+  const handleAssignRoles = (userId: string, assignedRoles: []) => {};
 
   const columns = [
     {
@@ -109,8 +126,27 @@ export default function UsersManagement() {
     {
       key: "actions" as string,
       header: "Actions",
-      render: () => (
+      render: (user: User) => (
         <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleOpenModal(user)}
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+              />
+            </svg>
+          </Button>
           <Button variant="ghost" size="sm">
             <svg
               className="w-4 h-4 text-red-500"
@@ -190,10 +226,11 @@ export default function UsersManagement() {
             <button
               key={role}
               onClick={() => setRoleFilter(role)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${roleFilter === role
-                ? "bg-indigo-600 text-white"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
-                }`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                roleFilter === role
+                  ? "bg-indigo-600 text-white"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
+              }`}
             >
               {role === "all" ? "All" : role}
             </button>
@@ -208,6 +245,30 @@ export default function UsersManagement() {
         keyExtractor={(user) => user.id}
         emptyMessage="No users found."
       />
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Assign Roles To User"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setIsModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAssignRoles} isLoading={isSubmitting}>
+              Create Role
+            </Button>
+          </>
+        }
+      >
+        <Input
+          label="Role Name"
+          placeholder="e.g., SUPERVISOR"
+          value={newRoleName}
+          onChange={(e) => setNewRoleName(e.target.value)}
+          helperText="Role names should be uppercase (e.g., ADMIN, MANAGER)"
+        />
+      </Modal>
     </div>
   );
 }
