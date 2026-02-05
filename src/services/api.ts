@@ -90,6 +90,13 @@ class ApiService {
         return this.request(`/roles/${roleName}`, { method: 'DELETE' });
     }
 
+    async assignRolesToUser(userId: string, roleNames: string[]) {
+        return this.request("/users/roles", {
+            method: 'POST',
+            body: JSON.stringify({ userId: userId,roles: roleNames }),
+        });
+    }
+
     // Permission endpoints
     async getPermissions() {
         return this.request<{ id: string; name: string }[]>('/permissions');
