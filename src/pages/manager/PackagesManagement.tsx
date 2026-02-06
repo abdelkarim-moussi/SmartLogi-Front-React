@@ -177,12 +177,11 @@ export default function PackagesManagement() {
             value={pkg.status}
             onChange={(e) => handleStatusChange(pkg.id, e.target.value)}
           >
-            <option value="CREE">Created</option>
-            <option value="PREPARATION">Preparation</option>
-            <option value="EN_COURS">In Transit</option>
-            <option value="LIVRE">Delivered</option>
-            <option value="RETOURNE">Returned</option>
-            <option value="ANNULE">Cancelled</option>
+            <option value="CREATED">Created</option>
+            <option value="IN_STOCK">Preparation</option>
+            <option value="IN_TRANSIT">In Transit</option>
+            <option value="DELIVERED">Delivered</option>
+            <option value="COLLECTED">Returned</option>
           </select>
         </div>
       ),
