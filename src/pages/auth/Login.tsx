@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { useToast } from "../components/ui/Toast";
-import Button from "../components/ui/Button";
-import Input from "../components/ui/Input";
+import { useAuth } from "../../context/AuthContext";
+import { useToast } from "../../components/ui/Toast";
+import Button from "../../components/ui/Button";
+import Input from "../../components/ui/Input";
 
 export default function Login() {
   const [email, setEmail] = useState("");
