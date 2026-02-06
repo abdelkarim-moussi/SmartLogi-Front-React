@@ -113,10 +113,8 @@ class ApiService {
         return this.request(`/permissions/${permissionName}`, { method: 'DELETE' });
     }
 
-    // Colis endpoints
     async getAllColis() {
         const response = await this.request<{ content: unknown[] } | unknown[]>('/colis');
-        // Handle Spring Boot paginated response
         if (response && typeof response === 'object' && 'content' in response) {
             return response.content;
         }
@@ -160,8 +158,9 @@ class ApiService {
     }
 
     async updateColisStatus(id: string, status: string) {
+
         return this.request(`/colis/${id}/status/${status}`, {
-            method: 'PUT',
+            method: 'PATCH',
         });
     }
 

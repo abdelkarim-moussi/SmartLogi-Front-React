@@ -46,6 +46,7 @@ export default function AssignedPackages() {
     try {
       setIsUpdating(true);
       await api.updateColisStatus(selectedPackage.id, newStatus);
+      console.log("new status : " + newStatus);
       showToast("success", "Status updated successfully");
       setIsStatusModalOpen(false);
       fetchPackages();
