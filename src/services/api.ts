@@ -227,7 +227,7 @@ class ApiService {
         return this.request(`/clients/${id}`, { method: 'DELETE' });
     }
 
-    // Livraison (assignment) endpoints
+
     async assignLivreurToColis(colisId: string, livreurId: string) {
         return this.request(`/livraison/${colisId}/livreur/${livreurId}`, {
             method: 'POST',
@@ -237,6 +237,12 @@ class ApiService {
 
     async getUsers() {
         return this.request<{ id: string; email: string; roles: unknown[], createdAt: string, updatedAt: string }[]>("/users", {
+            method: 'GET'
+        });
+    }
+
+    async getStats() {
+        return this.request<{users:number,roles: number, permissions: number}>("/stats", {
             method: 'GET'
         });
     }
